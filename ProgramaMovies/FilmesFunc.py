@@ -1,27 +1,37 @@
+import csv
+import PySimpleGUI as sg
+from colorama import init, Fore, Back, Style
+from csv import DictReader
+from FilmesB import Filme
+from tabulate import tabulate
+import matplotlib.pyplot as plt
+
+
+
 def menu(lista):
-    import PySimpleGUI as sg
+
     menu_def = [['Visualizar', ['Lista de filmes', 'Lista por genero', 'Lista por streaming', ]],
                 ['Editar', ['Inserir novo filme','Remover Filme','Undo'], ],
                 ['Sobre', 'Estatisticas'], ]
 
     op=''
 
-    from colorama import init, Fore, Back, Style
+
     #chamadamenu='\033[1m'+' MENU '+'\033[0m'
     textomenu='\nOpcoes até o momento: \n(1)Ver lista de filmes\n' \
-                                              '(2)Lista de filmes por streaming\n' \
-                                              '(3)Lista do genero\n' \
-                                              '(4)Inserir Filme\n' \
-                                              '(5)Remover Filme\n' \
-                                            '(6)Estatisticas \n'
+              '(2)Lista de filmes por streaming\n' \
+              '(3)Lista do genero\n' \
+              '(4)Inserir Filme\n' \
+              '(5)Remover Filme\n' \
+              '(6)Estatisticas \n'
     sg.theme("Reddit")
 
     choices = ('Lista de filmes', 'Lista por genero', 'Lista por streaming', 'Inserir novo filme', 'Remover Filme','Estatisticas')
 
     layout=[[sg.Menu(menu_def)],
             [sg.Text('Escolha sua opcao: ')],
-             [sg.Listbox(choices, size=(20, len(choices)+2), key='-opcao-')],
-             [sg.Button('Ok')]]
+            [sg.Listbox(choices, size=(20, len(choices)+2), key='-opcao-')],
+            [sg.Button('Ok')]]
 
     print(Style.RESET_ALL)
     window = sg.Window('Filmes ! ', (layout) ,no_titlebar=False,grab_anywhere=True,alpha_channel=1,size=(640,480),margins=(200,100))
@@ -58,46 +68,31 @@ def chamafuncao(op,lista) :
 
 def abrearq():
     lista=[]
-    from csv import DictReader
-    from FilmesB import Filme
-    arq=open('C:\\Users\\Cliente\\Desktop\\Programming\\PYTHON\\projetos\\filmes\\filmes.csv','r+')
+
+    try:
+        arq=open('filmes.csv','r+')
+    except:
+        arq=open('filmes.csv','w+')
+        arq.write("ID,Nome,Genero,Streaming,duracao\n")
     #next(arq)
     leitor=DictReader(arq,delimiter=',')
     i=0
     for linha in leitor:
+        print(linha)
         lista.append(Filme(linha['ID'],linha['Nome'],linha['Genero'],linha['Streaming'],linha['duracao'])) #ja usa o construtor colocando cada linha do cabecalho nele
     arq.close()
     return lista
 
-"""def escrevearq(lista):
-    arq=open('C:\\Users\\Cliente\\Desktop\\Programming\\PYTHON\\projetos\\filmes\\filmes.csv','a')
-    from csv import DictWriter
-    ID=1
-    cabecalho=['ID','Nome','Genero','Streaming','Duracao(min)']
-    escritor=DictWriter(arq,fieldnames=cabecalho)
-    op=''
-    print('\nIncluir filme? Digite "sim" ou "nao": ')
-    while op!='nao':
-        op=input()
-        ID=len(lista)+1
-        nome=input(str(('Digite o nome do filme: ')))
-        genero = input(str(('Digite o genero do filme: ')))
-        streaming = input(str(('Digite o streaming em que o filme se encontra: ')))
-        duracao=input((('Digite a duracao(em minutos) do filme: ')))
-        escritor.writerow({'ID':ID,'Nome':nome,'Genero':genero,'Streaming':streaming,'Duracao(min)':duracao})
-        op=input('Incluir filme? Digite "sim" ou "nao": ')
-    arq.close()
-    lista=abrearq()
-    return lista
-    """
 
 def escrevearq2(lista):
-    arq = open('C:\\Users\\Cliente\\Desktop\\Programming\\PYTHON\\projetos\\filmes\\filmes.csv', 'a')
-    from csv import DictWriter
-    import PySimpleGUI as sg
-    ID = int(lista[len(lista)-1].id)
+    arq = open('filmes.csv', 'a')
+
+    try:
+        ID = int(lista[len(lista)-1].id)
+    except:
+        ID = 1
     cabecalho = ['ID', 'Nome', 'Genero', 'Streaming', 'Duracao(min)']
-    escritor = DictWriter(arq, fieldnames=cabecalho)
+    escritor = csv.DictWriter(arq, fieldnames=cabecalho)
     op = ''
 
     layout = [[sg.Text('Nome: '),sg.InputText()],
@@ -128,9 +123,7 @@ def escrevearq2(lista):
 
 
 def printatudo(lista):
-    import PySimpleGUI as sg
-    from colorama import init,Fore,Back,Style
-    from tabulate import tabulate
+
     init()
     table=[]
     for i in range(len(lista)):
@@ -146,34 +139,13 @@ def printatudo(lista):
 
 
 
-"""def buscagenero(lista):
-    from colorama import init, Fore, Back, Style
-    from tabulate import tabulate
-    import PySimpleGUI as sg
-    gen=input(str('\n\nDigite o genero à ser buscado: '))
-    chamada=Fore.RED + f'Filmes do genero {Fore.MAGENTA+gen.title()}: '
-    print('\n')
-    print(chamada)
-    table=[]
 
-    for i in range(len(lista)):
-        if lista[i].genero.casefold()==gen.casefold():
-
-            ID = Fore.GREEN + lista[i].id
-            strnome=  Fore.WHITE + lista[i].nome.title()
-            strstre = Fore.RED + lista[i].streaming.title()
-            duracao = Fore.MAGENTA + f'{lista[i].duracao} min'
-            table.append([ID,strnome,strstre,duracao])
-    print(Fore.GREEN)
-    print(tabulate(table, headers=["ID","Nome do Filme", "Streaming","Duracao"], tablefmt="presto"))
-    print(Style.RESET_ALL)
-"""
 def buscagenero2(lista):
     import PySimpleGUI as sg
     from tabulate import tabulate
     table=[]
     layout = [[sg.Button('Acao',key='Acao'),sg.Button('Comedia',key='Comedia'),sg.Button('Suspense',key='Suspense'),sg.Button('Terror',key='Terror'),sg.Button('Drama',key='Drama')],
-                        ]
+              ]
 
     window=sg.Window('Filmes por Genero',layout)
     while True:
@@ -188,7 +160,6 @@ def buscagenero2(lista):
 
 
 def teste():
-    import PySimpleGUI as sg
 
     choices = ('Red', 'Green', 'Blue', 'Yellow', 'Orange', 'Purple', 'Chartreuse')
 
@@ -232,8 +203,7 @@ def buscagenerobusca(lista,op):
 
 def buscastreaming(lista):
     from colorama import init, Fore, Back, Style
-    from tabulate import tabulate
-    import PySimpleGUI as sg
+
 
 
     table = []
@@ -241,10 +211,10 @@ def buscastreaming(lista):
 
 
     layout = [[sg.Button('Netflix',image_filename='NETFLIX.png',image_size=(150,150)), sg.Button('Prime Video',image_filename='PRIME.png',image_size=(150,150)),
-                       sg.Button('Telecine',image_filename='TELECINE.png',image_size=(150,150)), sg.Button('Globo Play',image_filename='GLOBO.png',image_size=(150,150)),
-                       sg.Button('Hbo Go',image_filename='HBO.png',image_size=(150,150)),
-                      sg.Button('Outros'),
-                      ]]
+               sg.Button('Telecine',image_filename='TELECINE.png',image_size=(150,150)), sg.Button('Globo Play',image_filename='GLOBO.png',image_size=(150,150)),
+               sg.Button('Hbo Go',image_filename='HBO.png',image_size=(150,150)),
+               sg.Button('Outros'),
+               ]]
 
     window = sg.Window('Filmes por Streaming', layout)
     while True:
@@ -261,7 +231,6 @@ def buscastreaming(lista):
 
 
 def buscastr(gen,lista):
-    from tabulate import tabulate
     table=[]
     for i in range(len(lista)):
         if lista[i].streaming.casefold() == gen.casefold():
@@ -279,12 +248,10 @@ def remove(lista):
     lista = []
     from csv import reader
     from FilmesB import Filme
-
     arq = open('C:\\Users\\Cliente\\Desktop\\Programming\\PYTHON\\projetos\\filmes\\filmes.csv', 'a+')
     # next(arq)
     leitor = reader(arq, delimiter=',')
     """
-    import PySimpleGUI as sg
     layout=[[sg.Text('Digite o nome do filme: '),sg.InputText(),sg.Ok()]]
     window=sg.Window('Removendo',layout)
     achou=False
@@ -316,7 +283,7 @@ def remove(lista):
 
 
 
-
+"""
 def abreimdb():
     from csv import DictReader
     from FilmesB import FilmesIMDB
@@ -327,7 +294,7 @@ def abreimdb():
     i = 0
     print(list(dfBasics))
     lista2=[]
-    """for linha in leitor:
+    for linha in leitor:
         if linha['titleType']=='Movie':
             lista2.append(FilmesIMDB(linha['primaryTitle'], linha['genres'],linha['startYear'],linha['runtimeMinutes']))
                              # ja usa o construtor colocando cada linha do cabecalho nele
@@ -339,8 +306,7 @@ def abreimdb():
 
 
 def graficos(lista):
-    from colorama import Back,Fore,Style
-    import PySimpleGUI as sg
+
 
 
     texto='Estatistica por: \n 1 - Genero \n 2 - Streaming \n 3 - Duracao'
@@ -366,7 +332,6 @@ def graficos(lista):
 
 
 def graficogenero(lista):
-    import matplotlib.pyplot as plt
 
     contdrama = 0
     contacao = 0
@@ -394,12 +359,11 @@ def graficogenero(lista):
     plt.show()
 
 def graficostreaming(lista):
-    import matplotlib.pyplot as plt
-    contnetflix = 0;
-    contprime = 0;
-    conttelecine = 0;
-    contglobo = 0;
-    conthbo = 0;
+    contnetflix = 0
+    contprime = 0
+    conttelecine = 0
+    contglobo = 0
+    conthbo = 0
     contoutros = 0
 
     for i in lista:
@@ -468,6 +432,3 @@ def printagrafmin(lista,min):
     plt.axis('equal')
     plt.tight_layout()
     plt.show()
-
-
-
